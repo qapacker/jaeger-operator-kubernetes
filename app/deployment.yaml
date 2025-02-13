@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: example-hotrod
+  name: example-hotrod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-hotrod
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: example-hotrod
+    spec:
+      containers:
+        - image: jaegertracing/example-hotrod:latest
+          name: example-hotrod
+          args: ["all"]
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://jaeger-collector.observability.svc.cluster.local:4318
+            - name: JAEGER_AGENT_HOST
+              value: localhost
+            - name: JAEGER_AGENT_PORT
+              value: "6831"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8080
+              name: frontend
+            - containerPort: 8081
+              name: customer
+            - containerPort: 8083
+              name: route
